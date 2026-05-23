@@ -1,0 +1,13 @@
+.gradle/
+.idea/
+*.iml
+local.properties
+build/
+captures/
+
+__pycache__/
+.venv/
+*.pyc
+
+ShiftSaver/app/build/
+ShiftSaver/build/
