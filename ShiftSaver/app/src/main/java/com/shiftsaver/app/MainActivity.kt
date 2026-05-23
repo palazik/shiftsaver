@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -447,7 +448,7 @@ private fun JobPanel(baseUrl: String, job: DownloadJob, open: (String) -> Unit) 
 }
 
 @Composable
-private fun ShiftCard(content: @Composable Column.() -> Unit) {
+private fun ShiftCard(content: @Composable ColumnScope.() -> Unit) {
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
