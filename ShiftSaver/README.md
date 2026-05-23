@@ -6,16 +6,16 @@ This folder contains the Android app for ShiftSaver.
 
 - Kotlin
 - Jetpack Compose
-- Material 3 components
+- Compose UI components with a MIUIX-style skin
 - DataStore Preferences
 - OkHttp
 
-The app includes two selectable visual modes:
+The app uses one MIUIX-style interface with two selectable themes:
 
-- `MIUIX` - MIUIX-inspired skin using bright blue/green colors and larger rounded surfaces.
-- `Material 3` - Material Design 3-style skin using stable Compose Material 3 components.
+- `White`
+- `Dark`
 
-MIUIX itself is experimental, so this app currently uses a MIUIX-style Compose skin instead of depending directly on unstable MIUIX APIs.
+MIUIX itself is experimental, so this app currently uses a MIUIX-inspired Compose skin instead of depending directly on unstable MIUIX APIs.
 
 ## Build
 
@@ -40,6 +40,13 @@ Then build and install the `app` module.
 4. Tap `Test`.
 5. Paste a public media URL.
 6. Tap `Start`.
+
+## App Sections
+
+- `Download` - paste a media URL, start a job, and open the completed file.
+- `Servers` - configure the server IP/port, test the connection, and pick quick presets.
+- `Settings` - switch between White and Dark themes.
+- `About` - app version, current server, and responsible-use notes.
 
 ## Notes
 

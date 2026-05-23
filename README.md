@@ -10,7 +10,7 @@ The repo is split like this:
 ## What Works Now
 
 - Android app scaffold using Jetpack Compose.
-- Choosable MIUIX-style and Material Design 3-style UI skins.
+- MIUIX-style interface with White and Dark themes.
 - Saved server IP and port settings.
 - Server health check from the app.
 - Download job creation and status polling.
@@ -98,6 +98,13 @@ Build and install the `app` module, then open ShiftSaver on the phone and enter:
 - Port: `8787` unless changed
 
 Tap `Test`, then paste a public TikTok, YouTube, or Instagram URL and tap `Start`.
+
+The app has four bottom tabs:
+
+- `Download` for submitting public media URLs.
+- `Servers` for server IP/port, connection test, and quick presets.
+- `Settings` for White/Dark theme selection.
+- `About` for app/version/server information and usage limits.
 
 ## GitHub Actions APK Build
 
