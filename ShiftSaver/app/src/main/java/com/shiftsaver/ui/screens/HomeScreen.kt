@@ -16,21 +16,31 @@ import com.shiftsaver.ui.components.DownloadCard
 import com.shiftsaver.viewmodel.MainUiState
 import com.shiftsaver.viewmodel.MainViewModel
 
-// MD3
+// MD3 imports
 import androidx.compose.material3.*
 
-// Miuix
-import top.yukonga.miuix.kmp.miuix.Button as MiuixButton
-import top.yukonga.miuix.kmp.miuix.Text as MiuixText
-import top.yukonga.miuix.kmp.miuix.TextField as MiuixTextField
-import top.yukonga.miuix.kmp.miuix.Card as MiuixCard
-import top.yukonga.miuix.kmp.miuix.MiuixTheme
+// Miuix imports
+import top.yukonga.miuix.kmp.basic.Button as MiuixButton
+import top.yukonga.miuix.kmp.basic.Text as MiuixText
+import top.yukonga.miuix.kmp.basic.TextField as MiuixTextField
+import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
+import top.yukonga.miuix.kmp.basic.IconButton as MiuixIconButton
+import top.yukonga.miuix.kmp.basic.Card as MiuixCard
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
-fun HomeScreen(state: MainUiState, viewModel: MainViewModel, isMiuix: Boolean) {
+fun HomeScreen(
+    state: MainUiState,
+    viewModel: MainViewModel,
+    isMiuix: Boolean
+) {
     val clipboard = LocalClipboardManager.current
-    if (isMiuix) HomeScreenMiuix(state, viewModel, clipboard)
-    else HomeScreenMD3(state, viewModel, clipboard)
+
+    if (isMiuix) {
+        HomeScreenMiuix(state, viewModel, clipboard)
+    } else {
+        HomeScreenMD3(state, viewModel, clipboard)
+    }
 }
 
 @Composable
@@ -40,9 +50,12 @@ private fun HomeScreenMD3(
     clipboard: androidx.compose.ui.platform.ClipboardManager
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Connection status chip
         val (statusColor, statusText) = when {
             state.connecting -> MaterialTheme.colorScheme.tertiary to "Connecting…"
             state.connected -> MaterialTheme.colorScheme.primary to "Server connected"
@@ -57,9 +70,19 @@ private fun HomeScreenMD3(
             )
         )
 
-        Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(2.dp)) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Paste a URL", style = MaterialTheme.typography.titleMedium)
+        // URL input card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(2.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    "Paste a URL",
+                    style = MaterialTheme.typography.titleMedium
+                )
                 OutlinedTextField(
                     value = state.urlInput,
                     onValueChange = viewModel::onUrlChange,
@@ -70,7 +93,9 @@ private fun HomeScreenMD3(
                         IconButton(onClick = {
                             val text = clipboard.getText()?.text ?: ""
                             viewModel.onUrlChange(text)
-                        }) { Icon(Icons.Default.ContentPaste, contentDescription = "Paste") }
+                        }) {
+                            Icon(Icons.Default.ContentPaste, contentDescription = "Paste")
+                        }
                     }
                 )
                 Button(
@@ -85,6 +110,7 @@ private fun HomeScreenMD3(
             }
         }
 
+        // Downloads list
         if (state.downloads.isNotEmpty()) {
             Text("Downloads", style = MaterialTheme.typography.titleSmall)
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -107,15 +133,20 @@ private fun HomeScreenMiuix(
     clipboard: androidx.compose.ui.platform.ClipboardManager
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Status row
         val statusText = when {
             state.connecting -> "Connecting…"
             state.connected -> "Server connected ✓"
             else -> "Not connected — tap to retry"
         }
-        MiuixCard(modifier = Modifier.fillMaxWidth()) {
+        MiuixCard(
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Row(
                 Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -126,8 +157,12 @@ private fun HomeScreenMiuix(
             }
         }
 
+        // URL input card
         MiuixCard(modifier = Modifier.fillMaxWidth()) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 MiuixText("Paste a URL", style = MiuixTheme.textStyles.title)
                 MiuixTextField(
                     value = state.urlInput,
@@ -139,7 +174,10 @@ private fun HomeScreenMiuix(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     MiuixButton(
                         text = "Paste",
-                        onClick = { viewModel.onUrlChange(clipboard.getText()?.text ?: "") },
+                        onClick = {
+                            val text = clipboard.getText()?.text ?: ""
+                            viewModel.onUrlChange(text)
+                        },
                         modifier = Modifier.weight(1f)
                     )
                     MiuixButton(

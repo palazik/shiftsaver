@@ -26,11 +26,13 @@ import com.shiftsaver.ui.screens.HomeScreen
 import com.shiftsaver.ui.screens.SettingsScreen
 import com.shiftsaver.ui.theme.ShiftSaverTheme
 import com.shiftsaver.viewmodel.MainViewModel
-import top.yukonga.miuix.kmp.miuix.NavigationBar as MiuixNavigationBar
-import top.yukonga.miuix.kmp.miuix.NavigationBarItem as MiuixNavigationBarItem
-import top.yukonga.miuix.kmp.miuix.Scaffold as MiuixScaffold
-import top.yukonga.miuix.kmp.miuix.TopAppBar as MiuixTopAppBar
-import top.yukonga.miuix.kmp.miuix.OverlayDialog
+import top.yukonga.miuix.kmp.basic.NavigationBar as MiuixNavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationItem as MiuixNavigationItem
+import top.yukonga.miuix.kmp.basic.Scaffold as MiuixScaffold
+import top.yukonga.miuix.kmp.basic.TopAppBar as MiuixTopAppBar
+import top.yukonga.miuix.kmp.basic.Text as MiuixText
+import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
+import top.yukonga.miuix.kmp.extra.OverlayDialog
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +49,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+            // Default to miuix as the stock design
             ShiftSaverTheme(themeChoice = state.theme, darkMode = state.darkMode) {
                 if (state.theme == "md3") {
                     ShiftSaverMD3Root(state = state, vm = vm)
@@ -61,16 +64,20 @@ class MainActivity : ComponentActivity() {
 // ─── Slide animation helpers ──────────────────────────────────────────────────
 
 private val slideEnter: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
-    slideInHorizontally(animationSpec = tween(300)) { it / 4 } + fadeIn(animationSpec = tween(300))
+    slideInHorizontally(animationSpec = tween(300)) { it / 4 } +
+        fadeIn(animationSpec = tween(300))
 }
 private val slideExit: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
-    slideOutHorizontally(animationSpec = tween(300)) { -it / 4 } + fadeOut(animationSpec = tween(300))
+    slideOutHorizontally(animationSpec = tween(300)) { -it / 4 } +
+        fadeOut(animationSpec = tween(300))
 }
 private val slidePopEnter: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
-    slideInHorizontally(animationSpec = tween(300)) { -it / 4 } + fadeIn(animationSpec = tween(300))
+    slideInHorizontally(animationSpec = tween(300)) { -it / 4 } +
+        fadeIn(animationSpec = tween(300))
 }
 private val slidePopExit: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
-    slideOutHorizontally(animationSpec = tween(300)) { it / 4 } + fadeOut(animationSpec = tween(300))
+    slideOutHorizontally(animationSpec = tween(300)) { it / 4 } +
+        fadeOut(animationSpec = tween(300))
 }
 
 // ─── MD3 root ────────────────────────────────────────────────────────────────
@@ -95,7 +102,9 @@ private fun ShiftSaverMD3Root(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHost) },
-        topBar = { TopAppBar(title = { Text("ShiftSaver") }) },
+        topBar = {
+            TopAppBar(title = { Text("ShiftSaver") })
+        },
         bottomBar = {
             NavigationBar {
                 navItems.forEach { item ->
@@ -153,11 +162,13 @@ private fun ShiftSaverMiuixRoot(
     }
 
     MiuixScaffold(
-        topBar = { MiuixTopAppBar(title = "ShiftSaver") },
+        topBar = {
+            MiuixTopAppBar(title = "ShiftSaver")
+        },
         bottomBar = {
             MiuixNavigationBar {
-                navItems.forEach { item ->
-                    MiuixNavigationBarItem(
+                navItems.forEachIndexed { _, item ->
+                    MiuixNavigationItem(
                         selected = currentRoute == item.route,
                         onClick = {
                             if (currentRoute != item.route) navController.navigate(item.route) {
@@ -165,7 +176,7 @@ private fun ShiftSaverMiuixRoot(
                                 launchSingleTop = true
                             }
                         },
-                        icon = item.icon,
+                        icon = { MiuixIcon(item.icon, contentDescription = item.label) },
                         label = item.label
                     )
                 }
@@ -198,13 +209,9 @@ private fun ShiftSaverMiuixRoot(
     }
 }
 
-// ─── Nav item data ────────────────────────────────────────────────────────────
+// ─── shared nav item data ─────────────────────────────────────────────────────
 
-private data class NavItem(
-    val route: String,
-    val label: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
-)
+private data class NavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
 private val navItems = listOf(
     NavItem(Screen.Home.route, "Download", Icons.Default.Download),

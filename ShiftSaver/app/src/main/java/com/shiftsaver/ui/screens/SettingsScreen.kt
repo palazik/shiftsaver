@@ -9,18 +9,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.shiftsaver.viewmodel.MainUiState
 import com.shiftsaver.viewmodel.MainViewModel
-import top.yukonga.miuix.kmp.miuix.Card as MiuixCard
-import top.yukonga.miuix.kmp.miuix.Text as MiuixText
-import top.yukonga.miuix.kmp.miuix.Button as MiuixButton
-import top.yukonga.miuix.kmp.miuix.TextField as MiuixTextField
-import top.yukonga.miuix.kmp.miuix.MiuixTheme
-import top.yukonga.miuix.kmp.preference.SwitchPreference
-import top.yukonga.miuix.kmp.preference.RadioButtonPreference
+import top.yukonga.miuix.kmp.basic.Card as MiuixCard
+import top.yukonga.miuix.kmp.basic.Text as MiuixText
+import top.yukonga.miuix.kmp.basic.Button as MiuixButton
+import top.yukonga.miuix.kmp.basic.TextField as MiuixTextField
+import top.yukonga.miuix.kmp.extra.SwitchPreference
+import top.yukonga.miuix.kmp.extra.RadioButtonPreference
+import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
-fun SettingsScreen(state: MainUiState, viewModel: MainViewModel, isMiuix: Boolean) {
-    if (isMiuix) SettingsMiuix(state, viewModel)
-    else SettingsMD3(state, viewModel)
+fun SettingsScreen(
+    state: MainUiState,
+    viewModel: MainViewModel,
+    isMiuix: Boolean
+) {
+    if (isMiuix) {
+        SettingsMiuix(state, viewModel)
+    } else {
+        SettingsMD3(state, viewModel)
+    }
 }
 
 @Composable
@@ -29,21 +36,44 @@ private fun SettingsMD3(state: MainUiState, viewModel: MainViewModel) {
     var portField by remember(state.port) { mutableStateOf(state.port.toString()) }
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Server
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Server", style = MaterialTheme.typography.titleMedium)
-                OutlinedTextField(value = hostField, onValueChange = { hostField = it }, label = { Text("IP Address") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-                OutlinedTextField(value = portField, onValueChange = { portField = it }, label = { Text("Port") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(
+                    value = hostField,
+                    onValueChange = { hostField = it },
+                    label = { Text("IP Address") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                OutlinedTextField(
+                    value = portField,
+                    onValueChange = { portField = it },
+                    label = { Text("Port") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = { viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050) }, modifier = Modifier.weight(1f)) { Text("Save") }
-                    Button(onClick = { viewModel.testConnection() }, modifier = Modifier.weight(1f)) { Text("Test") }
+                    OutlinedButton(
+                        onClick = { viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050) },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Save") }
+                    Button(
+                        onClick = { viewModel.testConnection() },
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Test") }
                 }
             }
         }
 
+        // Theme
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Design", style = MaterialTheme.typography.titleMedium)
@@ -56,6 +86,7 @@ private fun SettingsMD3(state: MainUiState, viewModel: MainViewModel) {
             }
         }
 
+        // Dark mode
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
@@ -76,21 +107,40 @@ private fun SettingsMiuix(state: MainUiState, viewModel: MainViewModel) {
     var portField by remember(state.port) { mutableStateOf(state.port.toString()) }
 
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Server card
         MiuixCard(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 MiuixText("Server", style = MiuixTheme.textStyles.title)
-                MiuixTextField(value = hostField, onValueChange = { hostField = it }, label = "IP Address", modifier = Modifier.fillMaxWidth(), singleLine = true)
-                MiuixTextField(value = portField, onValueChange = { portField = it }, label = "Port", modifier = Modifier.fillMaxWidth(), singleLine = true)
+                MiuixTextField(
+                    value = hostField,
+                    onValueChange = { hostField = it },
+                    label = "IP Address",
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                MiuixTextField(
+                    value = portField,
+                    onValueChange = { portField = it },
+                    label = "Port",
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MiuixButton("Save", onClick = { viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050) }, modifier = Modifier.weight(1f))
+                    MiuixButton("Save", onClick = {
+                        viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050)
+                    }, modifier = Modifier.weight(1f))
                     MiuixButton("Test Connection", onClick = { viewModel.testConnection() }, modifier = Modifier.weight(1f))
                 }
             }
         }
 
+        // Design preference
         MiuixCard(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 MiuixText("Design", style = MiuixTheme.textStyles.title)
@@ -109,6 +159,7 @@ private fun SettingsMiuix(state: MainUiState, viewModel: MainViewModel) {
             }
         }
 
+        // Dark mode
         MiuixCard(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 MiuixText("Dark Mode", style = MiuixTheme.textStyles.title)
