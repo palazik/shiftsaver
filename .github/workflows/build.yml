@@ -49,7 +49,12 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+        run: sdkmanager "platforms;android-37.0" "build-tools;36.0.0"
+
+      # API 37 is installed as android-37.0 on GitHub runners but AGP looks for android-37
+      # https://github.com/actions/runner-images/issues/13859
+      - name: Create android-37 symlink
+        run: ln -sf "${ANDROID_SDK_ROOT}/platforms/android-37.0" "${ANDROID_SDK_ROOT}/platforms/android-37"
 
       # Build
       - name: Build Debug APK
