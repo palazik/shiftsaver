@@ -21,23 +21,32 @@ fun HistoryScreen(
     viewModel: MainViewModel,
     isMiuix: Boolean
 ) {
-    val done = state.downloads.filter { it.state == DownloadState.DONE || it.state == DownloadState.ERROR }
+    val done = state.downloads.filter {
+        it.state == DownloadState.DONE || it.state == DownloadState.ERROR
+    }
 
     if (done.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             if (isMiuix) {
-                MiuixText("No history yet", style = MiuixTheme.textStyles.body)
+                MiuixText("No history yet", style = MiuixTheme.textStyles.body1)
             } else {
                 Text("No history yet", style = MaterialTheme.typography.bodyMedium)
             }
         }
     } else {
         LazyColumn(
-            Modifier.fillMaxSize().padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
         ) {
             items(done) { item ->
-                DownloadCard(item = item, isMiuix = isMiuix, onRemove = { viewModel.removeDownload(item.id) })
+                DownloadCard(
+                    item = item,
+                    isMiuix = isMiuix,
+                    onRemove = { viewModel.removeDownload(item.id) }
+                )
             }
         }
     }

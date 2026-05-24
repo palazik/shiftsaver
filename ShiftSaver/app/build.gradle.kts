@@ -52,8 +52,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
-    implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit)
@@ -63,5 +61,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.miuix)
     implementation(libs.miuix.icons)
+    implementation(libs.miuix.preference)
     debugImplementation(libs.androidx.ui.tooling)
 }

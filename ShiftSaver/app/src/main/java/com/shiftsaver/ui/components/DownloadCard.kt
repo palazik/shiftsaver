@@ -15,11 +15,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.shiftsaver.model.DownloadItem
 import com.shiftsaver.model.DownloadState
-import com.shiftsaver.model.Platform
 import top.yukonga.miuix.kmp.basic.Card as MiuixCard
-import top.yukonga.miuix.kmp.basic.Text as MiuixText
-import top.yukonga.miuix.kmp.basic.IconButton as MiuixIconButton
 import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
+import top.yukonga.miuix.kmp.basic.IconButton as MiuixIconButton
+import top.yukonga.miuix.kmp.basic.Text as MiuixText
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -46,7 +45,7 @@ private fun DownloadCardMD3(item: DownloadItem, onRemove: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StateIcon(item.state, isMiuix = false)
+            StateIconMD3(item.state)
             Column(Modifier.weight(1f)) {
                 Text(
                     item.title,
@@ -86,20 +85,20 @@ private fun DownloadCardMiuix(item: DownloadItem, onRemove: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            StateIcon(item.state, isMiuix = true)
+            StateIconMiuix(item.state)
             Column(Modifier.weight(1f)) {
                 MiuixText(
                     item.title,
-                    style = MiuixTheme.textStyles.body,
+                    style = MiuixTheme.textStyles.body1,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 MiuixText(
                     "${item.platform.label} · ${item.state.name.lowercase().replaceFirstChar { it.uppercase() }}",
-                    style = MiuixTheme.textStyles.footnote
+                    style = MiuixTheme.textStyles.footnote1
                 )
                 item.filesize?.let {
-                    MiuixText(formatSize(it), style = MiuixTheme.textStyles.footnote)
+                    MiuixText(formatSize(it), style = MiuixTheme.textStyles.footnote1)
                 }
             }
             if (item.state == DownloadState.DONE || item.state == DownloadState.ERROR) {
@@ -114,18 +113,25 @@ private fun DownloadCardMiuix(item: DownloadItem, onRemove: () -> Unit) {
 }
 
 @Composable
-private fun StateIcon(state: DownloadState, isMiuix: Boolean) {
+private fun StateIconMD3(state: DownloadState) {
     val (icon, tint) = when (state) {
         DownloadState.DONE -> Icons.Default.CheckCircle to Color(0xFF4CAF50)
         DownloadState.ERROR -> Icons.Default.Error to Color(0xFFF44336)
         DownloadState.DOWNLOADING -> Icons.Default.HourglassEmpty to Color(0xFF2196F3)
         DownloadState.QUEUED -> Icons.Default.HourglassEmpty to Color(0xFF9E9E9E)
     }
-    if (isMiuix) {
-        MiuixIcon(icon, contentDescription = null, tint = tint)
-    } else {
-        Icon(icon, contentDescription = null, tint = tint)
+    Icon(icon, contentDescription = null, tint = tint)
+}
+
+@Composable
+private fun StateIconMiuix(state: DownloadState) {
+    val (icon, tint) = when (state) {
+        DownloadState.DONE -> Icons.Default.CheckCircle to Color(0xFF4CAF50)
+        DownloadState.ERROR -> Icons.Default.Error to Color(0xFFF44336)
+        DownloadState.DOWNLOADING -> Icons.Default.HourglassEmpty to Color(0xFF2196F3)
+        DownloadState.QUEUED -> Icons.Default.HourglassEmpty to Color(0xFF9E9E9E)
     }
+    MiuixIcon(icon, contentDescription = null, tint = tint)
 }
 
 private fun formatSize(bytes: Long): String {

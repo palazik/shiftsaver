@@ -10,11 +10,13 @@ import androidx.compose.ui.unit.dp
 import com.shiftsaver.viewmodel.MainUiState
 import com.shiftsaver.viewmodel.MainViewModel
 import top.yukonga.miuix.kmp.basic.Card as MiuixCard
+import top.yukonga.miuix.kmp.basic.SmallTitle as MiuixSmallTitle
 import top.yukonga.miuix.kmp.basic.Text as MiuixText
-import top.yukonga.miuix.kmp.basic.Button as MiuixButton
+import top.yukonga.miuix.kmp.basic.TextButton as MiuixTextButton
+import top.yukonga.miuix.kmp.basic.ButtonDefaults as MiuixButtonDefaults
 import top.yukonga.miuix.kmp.basic.TextField as MiuixTextField
-import top.yukonga.miuix.kmp.extra.SwitchPreference
-import top.yukonga.miuix.kmp.extra.RadioButtonPreference
+import top.yukonga.miuix.kmp.preference.RadioButtonPreference
+import top.yukonga.miuix.kmp.preference.SwitchPreference
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 @Composable
@@ -42,7 +44,6 @@ private fun SettingsMD3(state: MainUiState, viewModel: MainViewModel) {
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Server
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Server", style = MaterialTheme.typography.titleMedium)
@@ -73,7 +74,6 @@ private fun SettingsMD3(state: MainUiState, viewModel: MainViewModel) {
             }
         }
 
-        // Theme
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Design", style = MaterialTheme.typography.titleMedium)
@@ -86,7 +86,6 @@ private fun SettingsMD3(state: MainUiState, viewModel: MainViewModel) {
             }
         }
 
-        // Dark mode
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text("Dark Mode", style = MaterialTheme.typography.titleMedium)
@@ -110,13 +109,15 @@ private fun SettingsMiuix(state: MainUiState, viewModel: MainViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        // Server card
+        Spacer(Modifier.height(8.dp))
+
+        // ── Server ──────────────────────────────────────────────────────────
+        MiuixSmallTitle("Server")
         MiuixCard(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MiuixText("Server", style = MiuixTheme.textStyles.title)
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 MiuixTextField(
                     value = hostField,
                     onValueChange = { hostField = it },
@@ -132,45 +133,58 @@ private fun SettingsMiuix(state: MainUiState, viewModel: MainViewModel) {
                     singleLine = true
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    MiuixButton("Save", onClick = {
-                        viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050)
-                    }, modifier = Modifier.weight(1f))
-                    MiuixButton("Test Connection", onClick = { viewModel.testConnection() }, modifier = Modifier.weight(1f))
-                }
-            }
-        }
-
-        // Design preference
-        MiuixCard(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                MiuixText("Design", style = MiuixTheme.textStyles.title)
-                RadioButtonPreference(
-                    title = "Material 3",
-                    summary = "Google Material You design",
-                    selected = state.theme == "md3",
-                    onSelectedChange = { if (it) viewModel.setTheme("md3") }
-                )
-                RadioButtonPreference(
-                    title = "Miuix",
-                    summary = "Xiaomi HyperOS design",
-                    selected = state.theme == "miuix",
-                    onSelectedChange = { if (it) viewModel.setTheme("miuix") }
-                )
-            }
-        }
-
-        // Dark mode
-        MiuixCard(modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                MiuixText("Dark Mode", style = MiuixTheme.textStyles.title)
-                listOf("system" to "System Default", "light" to "Light", "dark" to "Dark").forEach { (key, label) ->
-                    RadioButtonPreference(
-                        title = label,
-                        selected = state.darkMode == key,
-                        onSelectedChange = { if (it) viewModel.setDarkMode(key) }
+                    MiuixTextButton(
+                        text = "Save",
+                        onClick = { viewModel.saveServer(hostField, portField.toIntOrNull() ?: 5050) },
+                        modifier = Modifier.weight(1f)
+                    )
+                    MiuixTextButton(
+                        text = "Test Connection",
+                        onClick = { viewModel.testConnection() },
+                        modifier = Modifier.weight(1f),
+                        colors = MiuixButtonDefaults.textButtonColorsPrimary()
                     )
                 }
             }
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        // ── Design ──────────────────────────────────────────────────────────
+        MiuixSmallTitle("Design")
+        MiuixCard(modifier = Modifier.fillMaxWidth()) {
+            RadioButtonPreference(
+                title = "Material 3",
+                summary = "Google Material You design",
+                selected = state.theme == "md3",
+                onClick = { viewModel.setTheme("md3") }
+            )
+            RadioButtonPreference(
+                title = "Miuix",
+                summary = "Xiaomi HyperOS design",
+                selected = state.theme == "miuix",
+                onClick = { viewModel.setTheme("miuix") }
+            )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // ── Dark Mode ───────────────────────────────────────────────────────
+        MiuixSmallTitle("Dark Mode")
+        MiuixCard(modifier = Modifier.fillMaxWidth()) {
+            listOf(
+                "system" to "System Default",
+                "light"  to "Light",
+                "dark"   to "Dark"
+            ).forEach { (key, label) ->
+                RadioButtonPreference(
+                    title = label,
+                    selected = state.darkMode == key,
+                    onClick = { viewModel.setDarkMode(key) }
+                )
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
     }
 }

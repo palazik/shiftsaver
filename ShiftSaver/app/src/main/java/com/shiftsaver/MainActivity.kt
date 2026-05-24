@@ -27,12 +27,12 @@ import com.shiftsaver.ui.screens.SettingsScreen
 import com.shiftsaver.ui.theme.ShiftSaverTheme
 import com.shiftsaver.viewmodel.MainViewModel
 import top.yukonga.miuix.kmp.basic.NavigationBar as MiuixNavigationBar
-import top.yukonga.miuix.kmp.basic.NavigationItem as MiuixNavigationItem
+import top.yukonga.miuix.kmp.basic.NavigationBarItem as MiuixNavigationItem
 import top.yukonga.miuix.kmp.basic.Scaffold as MiuixScaffold
 import top.yukonga.miuix.kmp.basic.TopAppBar as MiuixTopAppBar
-import top.yukonga.miuix.kmp.basic.Text as MiuixText
-import top.yukonga.miuix.kmp.basic.Icon as MiuixIcon
-import top.yukonga.miuix.kmp.extra.OverlayDialog
+import top.yukonga.miuix.kmp.basic.TextButton as MiuixTextButton
+import top.yukonga.miuix.kmp.basic.ButtonDefaults as MiuixButtonDefaults
+import top.yukonga.miuix.kmp.overlay.OverlayDialog
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // Default to miuix as the stock design
             ShiftSaverTheme(themeChoice = state.theme, darkMode = state.darkMode) {
                 if (state.theme == "md3") {
                     ShiftSaverMD3Root(state = state, vm = vm)
@@ -167,7 +166,7 @@ private fun ShiftSaverMiuixRoot(
         },
         bottomBar = {
             MiuixNavigationBar {
-                navItems.forEachIndexed { _, item ->
+                navItems.forEach { item ->
                     MiuixNavigationItem(
                         selected = currentRoute == item.route,
                         onClick = {
@@ -176,7 +175,7 @@ private fun ShiftSaverMiuixRoot(
                                 launchSingleTop = true
                             }
                         },
-                        icon = { MiuixIcon(item.icon, contentDescription = item.label) },
+                        icon = item.icon,
                         label = item.label
                     )
                 }
@@ -197,13 +196,17 @@ private fun ShiftSaverMiuixRoot(
             composable(Screen.Settings.route) { SettingsScreen(state, vm, isMiuix = true) }
         }
 
-        if (showSnackbar) {
-            OverlayDialog(
-                title = "ShiftSaver",
-                summary = snackMsg,
-                confirmButton = "OK",
-                onConfirmButtonClick = { showSnackbar = false },
-                onDismissRequest = { showSnackbar = false }
+        OverlayDialog(
+            show = showSnackbar,
+            title = "ShiftSaver",
+            summary = snackMsg,
+            onDismissRequest = { showSnackbar = false }
+        ) {
+            MiuixTextButton(
+                text = "OK",
+                onClick = { showSnackbar = false },
+                modifier = Modifier.fillMaxWidth(),
+                colors = MiuixButtonDefaults.textButtonColorsPrimary()
             )
         }
     }
@@ -211,7 +214,11 @@ private fun ShiftSaverMiuixRoot(
 
 // ─── shared nav item data ─────────────────────────────────────────────────────
 
-private data class NavItem(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+private data class NavItem(
+    val route: String,
+    val label: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+)
 
 private val navItems = listOf(
     NavItem(Screen.Home.route, "Download", Icons.Default.Download),

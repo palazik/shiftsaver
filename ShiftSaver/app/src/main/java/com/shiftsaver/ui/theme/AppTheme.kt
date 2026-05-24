@@ -7,11 +7,11 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.utils.ColorSchemeMode
-import top.yukonga.miuix.kmp.utils.ThemeController
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import top.yukonga.miuix.kmp.theme.ColorSchemeMode
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.theme.ThemeController
 
 /**
  * ShiftSaver unified theme wrapper.
@@ -22,7 +22,7 @@ import androidx.compose.runtime.remember
  */
 @Composable
 fun ShiftSaverTheme(
-    themeChoice: String = "md3",
+    themeChoice: String = "miuix",
     darkMode: String = "system",
     content: @Composable () -> Unit
 ) {
