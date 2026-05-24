@@ -12,24 +12,17 @@ import com.shiftsaver.model.DownloadState
 import com.shiftsaver.ui.components.DownloadCard
 import com.shiftsaver.viewmodel.MainUiState
 import com.shiftsaver.viewmodel.MainViewModel
-import top.yukonga.miuix.kmp.basic.Text as MiuixText
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.miuix.Text as MiuixText
+import top.yukonga.miuix.kmp.miuix.MiuixTheme
 
 @Composable
-fun HistoryScreen(
-    state: MainUiState,
-    viewModel: MainViewModel,
-    isMiuix: Boolean
-) {
+fun HistoryScreen(state: MainUiState, viewModel: MainViewModel, isMiuix: Boolean) {
     val done = state.downloads.filter { it.state == DownloadState.DONE || it.state == DownloadState.ERROR }
 
     if (done.isEmpty()) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            if (isMiuix) {
-                MiuixText("No history yet", style = MiuixTheme.textStyles.body)
-            } else {
-                Text("No history yet", style = MaterialTheme.typography.bodyMedium)
-            }
+            if (isMiuix) MiuixText("No history yet", style = MiuixTheme.textStyles.body)
+            else Text("No history yet", style = MaterialTheme.typography.bodyMedium)
         }
     } else {
         LazyColumn(

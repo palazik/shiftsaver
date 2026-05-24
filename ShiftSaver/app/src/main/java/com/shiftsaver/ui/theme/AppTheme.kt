@@ -7,22 +7,15 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.utils.ColorSchemeMode
-import top.yukonga.miuix.kmp.utils.ThemeController
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
+import top.yukonga.miuix.kmp.miuix.MiuixTheme
+import top.yukonga.miuix.kmp.miuix.darkColorScheme as miuixDarkColorScheme
+import top.yukonga.miuix.kmp.miuix.lightColorScheme as miuixLightColorScheme
 
-/**
- * ShiftSaver unified theme wrapper.
- *
- * [themeChoice] = "md3"   → Material Design 3
- * [themeChoice] = "miuix" → Xiaomi HyperOS / Miuix
- * [darkMode]    = "system" | "light" | "dark"
- */
 @Composable
 fun ShiftSaverTheme(
-    themeChoice: String = "md3",
+    themeChoice: String = "miuix",
     darkMode: String = "system",
     content: @Composable () -> Unit
 ) {
@@ -35,13 +28,8 @@ fun ShiftSaverTheme(
 
     when (themeChoice) {
         "miuix" -> {
-            val mode = when (darkMode) {
-                "dark" -> ColorSchemeMode.Dark
-                "light" -> ColorSchemeMode.Light
-                else -> ColorSchemeMode.System
-            }
-            val controller = remember(mode) { ThemeController(mode) }
-            MiuixTheme(controller = controller, content = content)
+            val colors = if (isDark) miuixDarkColorScheme() else miuixLightColorScheme()
+            MiuixTheme(colors = colors, content = content)
         }
         else -> {
             val context = LocalContext.current
