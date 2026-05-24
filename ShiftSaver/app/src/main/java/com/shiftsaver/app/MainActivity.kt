@@ -7,12 +7,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.ContentPaste
@@ -35,19 +37,6 @@ import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.SettingsEthernet
 import androidx.compose.material.icons.rounded.WifiTethering
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,6 +54,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -83,6 +73,22 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import top.yukonga.miuix.kmp.basic.BasicComponent
+import top.yukonga.miuix.kmp.basic.Button
+import top.yukonga.miuix.kmp.basic.ButtonDefaults
+import top.yukonga.miuix.kmp.basic.Card
+import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
+import top.yukonga.miuix.kmp.basic.Icon
+import top.yukonga.miuix.kmp.basic.NavigationBar
+import top.yukonga.miuix.kmp.basic.NavigationBarDisplayMode
+import top.yukonga.miuix.kmp.basic.NavigationBarItem
+import top.yukonga.miuix.kmp.basic.Scaffold
+import top.yukonga.miuix.kmp.basic.SmallTopAppBar
+import top.yukonga.miuix.kmp.basic.Text
+import top.yukonga.miuix.kmp.basic.TextField
+import top.yukonga.miuix.kmp.theme.MiuixTheme
+import top.yukonga.miuix.kmp.theme.darkColorScheme
+import top.yukonga.miuix.kmp.theme.lightColorScheme
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -198,27 +204,28 @@ private fun ShiftSaverApp(store: SettingsStore, api: ShiftSaverApi) {
 
 @Composable
 private fun ShiftSaverTheme(themeMode: ThemeMode, content: @Composable () -> Unit) {
-    val white = lightColorScheme(
-        primary = Color(0xFF0A84FF),
-        secondary = Color(0xFF34C759),
-        tertiary = Color(0xFFFF9500),
-        background = Color(0xFFF2F2F7),
-        surface = Color(0xFFF2F2F7),
-        surfaceContainer = Color.White,
-        onSurface = Color(0xFF111113),
-        onSurfaceVariant = Color(0xFF6E6E73)
-    )
-    val dark = darkColorScheme(
-        primary = Color(0xFF0A84FF),
-        secondary = Color(0xFF30D158),
-        tertiary = Color(0xFFFF9F0A),
-        background = Color(0xFF000000),
-        surface = Color(0xFF000000),
-        surfaceContainer = Color(0xFF1C1C1E),
-        onSurface = Color(0xFFF5F5F7),
-        onSurfaceVariant = Color(0xFF98989D)
-    )
-    MaterialTheme(colorScheme = if (themeMode == ThemeMode.Dark) dark else white, content = content)
+    val colors = if (themeMode == ThemeMode.Dark) {
+        darkColorScheme(
+            primary = Color(0xFF277AF7),
+            primaryVariant = Color(0xFF277AF7),
+            surface = Color(0xFF000000),
+            surfaceVariant = Color(0xFF191919),
+            surfaceContainer = Color(0xFF242424),
+            surfaceContainerHigh = Color(0xFF2D2D2D),
+            surfaceContainerHighest = Color(0xFF323232),
+            background = Color(0xFF191919)
+        )
+    } else {
+        lightColorScheme(
+            primary = Color(0xFF3482FF),
+            primaryVariant = Color(0xFF3482FF),
+            surface = Color(0xFFF7F7F7),
+            surfaceVariant = Color(0xFFF2F2F2),
+            surfaceContainer = Color.White,
+            background = Color.White
+        )
+    }
+    MiuixTheme(colors = colors, content = content)
 }
 
 @Composable
@@ -259,24 +266,38 @@ private fun ShiftSaverScreen(settings: Settings, store: SettingsStore, api: Shif
     }
 
     Scaffold(
-        bottomBar = {
-            MiuixTabBar(
-                selected = currentTab,
-                onSelected = { currentTab = it },
-                dark = draft.themeMode == ThemeMode.Dark
+        topBar = {
+            SmallTopAppBar(
+                title = currentTab.label,
+                subtitle = baseUrl,
+                color = MiuixTheme.colorScheme.surface,
+                actions = {
+                    StatusDot(busy = busy)
+                }
             )
-        }
+        },
+        bottomBar = {
+            NavigationBar(mode = NavigationBarDisplayMode.IconAndText) {
+                AppTab.entries.forEach { tab ->
+                    NavigationBarItem(
+                        selected = currentTab == tab,
+                        onClick = { currentTab = tab },
+                        icon = tab.icon,
+                        label = tab.label
+                    )
+                }
+            }
+        },
+        containerColor = MiuixTheme.colorScheme.surface
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 18.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(padding)
+                .padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            PageHeader(tab = currentTab, baseUrl = baseUrl)
             when (currentTab) {
                 AppTab.Download -> DownloadTab(
                     url = url,
@@ -330,50 +351,6 @@ private fun ShiftSaverScreen(settings: Settings, store: SettingsStore, api: Shif
 }
 
 @Composable
-private fun PageHeader(tab: AppTab, baseUrl: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(tab.label, style = MaterialTheme.typography.headlineLarge, color = MaterialTheme.colorScheme.onSurface)
-        Text(
-            baseUrl,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
-}
-
-@Composable
-private fun MiuixTabBar(selected: AppTab, onSelected: (AppTab) -> Unit, dark: Boolean) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(if (dark) Color(0xFF111113) else Color.White)
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        AppTab.entries.forEach { tab ->
-            val active = selected == tab
-            val bg = if (active) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f) else Color.Transparent
-            val fg = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(bg)
-                    .clickable { onSelected(tab) }
-                    .padding(vertical = 8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Icon(tab.icon, null, tint = fg, modifier = Modifier.size(22.dp))
-                Text(tab.label, color = fg, style = MaterialTheme.typography.labelSmall, maxLines = 1)
-            }
-        }
-    }
-}
-
-@Composable
 private fun DownloadTab(
     url: String,
     job: DownloadJob?,
@@ -384,31 +361,37 @@ private fun DownloadTab(
     onDownload: () -> Unit,
     onOpen: (String) -> Unit
 ) {
-    HeroPanel()
-    MiuixGroup {
-        Text("Media link", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
+    DownloadSummaryCard()
+    MiuixPanel {
+        Text(
+            text = "Media link",
+            style = MiuixTheme.textStyles.title3,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(Modifier.height(14.dp))
+        TextField(
             value = url,
             onValueChange = onUrl,
-            label = { Text("TikTok, YouTube, Instagram URL") },
-            leadingIcon = { Icon(Icons.Rounded.Link, null) },
+            label = "TikTok, YouTube, Instagram URL",
+            leadingIcon = {
+                Icon(imageVector = Icons.Rounded.Link, contentDescription = null)
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Done),
             minLines = 2,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            MiuixButton(onClick = onPaste, enabled = !busy, tonal = true) {
-                Icon(Icons.Rounded.ContentPaste, null)
+            MiuixButton(onClick = onPaste, enabled = !busy) {
+                Icon(imageVector = Icons.Rounded.ContentPaste, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
                 Text("Paste")
             }
-            MiuixButton(onClick = onDownload, enabled = !busy) {
+            MiuixButton(onClick = onDownload, enabled = !busy, primary = true) {
                 if (busy) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    CircularProgressIndicator(size = 18.dp, strokeWidth = 2.dp)
                 } else {
-                    Icon(Icons.Rounded.PlayArrow, null)
+                    Icon(imageVector = Icons.Rounded.PlayArrow, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
                     Text("Start")
                 }
@@ -430,135 +413,170 @@ private fun ServersTab(
     onTest: () -> Unit,
     onPreset: (String, String) -> Unit
 ) {
-    MiuixGroup {
-        Text("Active server", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(10.dp))
-        OutlinedTextField(
+    MiuixPanel {
+        Text(
+            text = "Active server",
+            style = MiuixTheme.textStyles.title3,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(Modifier.height(14.dp))
+        TextField(
             value = settings.host,
             onValueChange = onHost,
-            label = { Text("IP address") },
-            leadingIcon = { Icon(Icons.Rounded.WifiTethering, null) },
+            label = "IP address",
+            leadingIcon = {
+                Icon(imageVector = Icons.Rounded.WifiTethering, contentDescription = null)
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
+        Spacer(Modifier.height(10.dp))
+        TextField(
             value = settings.port,
             onValueChange = onPort,
-            label = { Text("Port") },
-            leadingIcon = { Icon(Icons.Rounded.SettingsEthernet, null) },
+            label = "Port",
+            leadingIcon = {
+                Icon(imageVector = Icons.Rounded.SettingsEthernet, contentDescription = null)
+            },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(14.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            MiuixButton(onClick = onSave, enabled = !busy, tonal = true) { Text("Save") }
-            MiuixButton(onClick = onTest, enabled = !busy) {
-                if (busy) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp) else Text("Test")
+            MiuixButton(onClick = onSave, enabled = !busy) { Text("Save") }
+            MiuixButton(onClick = onTest, enabled = !busy, primary = true) {
+                if (busy) CircularProgressIndicator(size = 18.dp, strokeWidth = 2.dp) else Text("Test")
             }
         }
-        Spacer(Modifier.height(10.dp))
-        Text(message, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
-    MiuixGroup {
-        Text("Quick servers", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(10.dp))
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        BasicComponent(
+            title = "Connection",
+            summary = message,
+            startAction = {
+                Icon(
+                    imageVector = if (message.startsWith("Connected")) Icons.Rounded.CheckCircle else Icons.Rounded.Info,
+                    contentDescription = null,
+                    tint = if (message.startsWith("Connected")) {
+                        Color(0xFF15C85D)
+                    } else {
+                        MiuixTheme.colorScheme.primary
+                    }
+                )
+            }
+        )
+    }
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
         ServerPreset("Home LAN", "192.168.1.10", "8787", onPreset)
         ServerPreset("Laptop hotspot", "192.168.43.1", "8787", onPreset)
         ServerPreset("Local test", "10.0.2.2", "8787", onPreset)
     }
-    MiuixGroup {
-        Text("Linux command", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Text("./linux/install.sh", style = MaterialTheme.typography.titleMedium)
-        Text("The script prints the IP and port to use here.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        BasicComponent(
+            title = "Linux command",
+            summary = "./linux/install.sh\nThe script prints the IP and port to use here.",
+            startAction = {
+                Icon(imageVector = Icons.Rounded.SettingsEthernet, contentDescription = null)
+            }
+        )
     }
 }
 
 @Composable
 private fun ServerPreset(label: String, host: String, port: String, onPreset: (String, String) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .clickable { onPreset(host, port) }
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(Icons.Rounded.WifiTethering, null, tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.width(12.dp))
-        Column(Modifier.weight(1f)) {
-            Text(label, style = MaterialTheme.typography.titleMedium)
-            Text("$host:$port", color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
+    BasicComponent(
+        title = label,
+        summary = "$host:$port",
+        startAction = {
+            Icon(
+                imageVector = Icons.Rounded.WifiTethering,
+                contentDescription = null,
+                tint = MiuixTheme.colorScheme.primary
+            )
+        },
+        endActions = {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = MiuixTheme.colorScheme.onSurfaceVariantActions
+            )
+        },
+        onClick = { onPreset(host, port) }
+    )
 }
 
 @Composable
 private fun SettingsTab(settings: Settings, onTheme: (ThemeMode) -> Unit) {
-    MiuixGroup {
-        Text("Theme", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(10.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-            ThemeMode.entries.forEach { mode ->
-                FilterChip(
-                    selected = settings.themeMode == mode,
-                    onClick = { onTheme(mode) },
-                    label = { Text(mode.label) },
-                    leadingIcon = if (settings.themeMode == mode) {
-                        { Icon(Icons.Rounded.CheckCircle, null, modifier = Modifier.size(18.dp)) }
-                    } else null
-                )
-            }
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        ThemeMode.entries.forEach { mode ->
+            SelectableRow(
+                title = mode.label,
+                summary = if (mode == ThemeMode.White) "HyperOS white surfaces" else "HyperOS dark surfaces",
+                icon = Icons.Rounded.Settings,
+                selected = settings.themeMode == mode,
+                onClick = { onTheme(mode) }
+            )
         }
     }
-    MiuixGroup {
-        Text("Interface", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Text("MIUIX only", style = MaterialTheme.typography.titleMedium)
-        Text(
-            "ShiftSaver now uses one MIUIX-inspired interface with separate white and dark themes.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        BasicComponent(
+            title = "Interface",
+            summary = "Miuix UI components, Miuix colors, Miuix navigation, and grouped HyperOS-style surfaces.",
+            startAction = {
+                Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
+            }
         )
     }
 }
 
 @Composable
 private fun AboutTab(baseUrl: String) {
-    MiuixGroup {
-        Icon(Icons.Rounded.CloudDownload, null, modifier = Modifier.size(42.dp), tint = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(12.dp))
-        Text("ShiftSaver", style = MaterialTheme.typography.headlineSmall)
-        Text("Version 0.1.0", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    MiuixPanel {
+        AccentIcon(Icons.Rounded.CloudDownload)
+        Spacer(Modifier.height(14.dp))
+        Text("ShiftSaver", style = MiuixTheme.textStyles.title1, fontWeight = FontWeight.SemiBold)
+        Text(
+            "Version 0.1.0",
+            style = MiuixTheme.textStyles.body2,
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary
+        )
         Spacer(Modifier.height(12.dp))
         Text(
             "Android companion app for a self-hosted Linux media downloader on your local network.",
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MiuixTheme.colorScheme.onSurfaceVariantSummary
         )
     }
-    MiuixGroup {
-        Text("Current server", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Text(baseUrl, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        BasicComponent(
+            title = "Current server",
+            summary = baseUrl,
+            startAction = {
+                Icon(imageVector = Icons.Rounded.SettingsEthernet, contentDescription = null)
+            }
+        )
     }
     NoticeCard()
 }
 
 @Composable
-private fun HeroPanel() {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(30.dp))
-            .background(Brush.linearGradient(listOf(Color(0xFF0A84FF), Color(0xFF5AC8FA), Color(0xFF34C759))))
-            .padding(24.dp)
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Icon(Icons.Rounded.CloudDownload, null, tint = Color.White, modifier = Modifier.size(36.dp))
-            Text("Quick Save", color = Color.White, style = MaterialTheme.typography.headlineSmall)
-            Text("Paste a public link and let your Linux server handle the download.", color = Color.White.copy(alpha = 0.9f))
+private fun DownloadSummaryCard() {
+    MiuixPanel {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+            AccentIcon(Icons.Rounded.CloudDownload)
+            Column(Modifier.weight(1f)) {
+                Text(
+                    "Quick Save",
+                    style = MiuixTheme.textStyles.title2,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "Paste a public link and let your Linux server handle the download.",
+                    style = MiuixTheme.textStyles.body2,
+                    color = MiuixTheme.colorScheme.onSurfaceVariantSummary
+                )
+            }
         }
     }
 }
@@ -566,21 +584,34 @@ private fun HeroPanel() {
 @Composable
 private fun JobPanel(baseUrl: String, job: DownloadJob, open: (String) -> Unit) {
     val done = job.status == "done" && job.fileName != null
-    MiuixGroup {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            Icon(if (job.error == null) Icons.Rounded.CloudDownload else Icons.Rounded.Error, null)
+    MiuixPanel {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Icon(
+                imageVector = if (job.error == null) Icons.Rounded.CloudDownload else Icons.Rounded.Error,
+                contentDescription = null,
+                tint = if (job.error == null) MiuixTheme.colorScheme.primary else MiuixTheme.colorScheme.error
+            )
             Column(Modifier.weight(1f)) {
-                Text(job.title ?: "Media job", style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Text(job.status.uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                Text(
+                    job.title ?: "Media job",
+                    style = MiuixTheme.textStyles.headline1,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    job.status.uppercase(),
+                    style = MiuixTheme.textStyles.footnote1,
+                    color = MiuixTheme.colorScheme.primary
+                )
             }
         }
         job.error?.let {
-            Spacer(Modifier.height(8.dp))
-            Text(it, color = MaterialTheme.colorScheme.error)
+            Spacer(Modifier.height(10.dp))
+            Text(it, color = MiuixTheme.colorScheme.error)
         }
         if (done) {
-            Spacer(Modifier.height(12.dp))
-            MiuixButton(onClick = { open("$baseUrl/files/${Uri.encode(job.fileName)}") }) {
+            Spacer(Modifier.height(14.dp))
+            MiuixButton(onClick = { open("$baseUrl/files/${Uri.encode(job.fileName)}") }, primary = true) {
                 Text("Open file")
             }
         }
@@ -589,45 +620,105 @@ private fun JobPanel(baseUrl: String, job: DownloadJob, open: (String) -> Unit) 
 
 @Composable
 private fun NoticeCard() {
-    MiuixGroup {
-        Text("Responsible use", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(6.dp))
-        Text(
-            "Use ShiftSaver only for your own media or media you have permission to save. Private, DRM-protected, login-only, or paywalled content is not supported.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+    Card(modifier = Modifier.fillMaxWidth(), insideMargin = PaddingValues(vertical = 4.dp)) {
+        BasicComponent(
+            title = "Responsible use",
+            summary = "Use ShiftSaver only for your own media or media you have permission to save. Private, DRM-protected, login-only, or paywalled content is not supported.",
+            startAction = {
+                Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
+            }
         )
     }
 }
 
 @Composable
-private fun MiuixGroup(content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-        shape = RoundedCornerShape(26.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(Modifier.padding(20.dp), content = content)
+private fun SelectableRow(
+    title: String,
+    summary: String,
+    icon: ImageVector,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    BasicComponent(
+        title = title,
+        summary = summary,
+        startAction = {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (selected) MiuixTheme.colorScheme.primary else MiuixTheme.colorScheme.onSurfaceVariantActions
+            )
+        },
+        endActions = {
+            if (selected) {
+                Icon(
+                    imageVector = Icons.Rounded.CheckCircle,
+                    contentDescription = null,
+                    tint = MiuixTheme.colorScheme.primary
+                )
+            }
+        },
+        onClick = onClick
+    )
+}
+
+@Composable
+private fun StatusDot(busy: Boolean) {
+    val brush = if (busy) {
+        Brush.linearGradient(listOf(Color(0xFFFFB340), Color(0xFFFF7A1A)))
+    } else {
+        Brush.linearGradient(listOf(Color(0xFF3482FF), Color(0xFF5DAAFF)))
     }
+    Box(
+        modifier = Modifier
+            .padding(end = 12.dp)
+            .size(18.dp)
+            .clip(RoundedCornerShape(9.dp))
+            .background(brush)
+    )
+}
+
+@Composable
+private fun AccentIcon(icon: ImageVector) {
+    Box(
+        modifier = Modifier
+            .size(46.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(MiuixTheme.colorScheme.tertiaryContainer),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MiuixTheme.colorScheme.onTertiaryContainer
+        )
+    }
+}
+
+@Composable
+private fun MiuixPanel(content: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        cornerRadius = 22.dp,
+        insideMargin = PaddingValues(18.dp),
+        content = content
+    )
 }
 
 @Composable
 private fun MiuixButton(
     onClick: () -> Unit,
     enabled: Boolean = true,
-    tonal: Boolean = false,
-    content: @Composable () -> Unit
+    primary: Boolean = false,
+    content: @Composable RowScope.() -> Unit
 ) {
-    val colors = if (tonal) {
-        ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
-            contentColor = MaterialTheme.colorScheme.primary
-        )
-    } else {
-        ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White)
-    }
-    Button(onClick = onClick, enabled = enabled, colors = colors, shape = RoundedCornerShape(18.dp), content = { content() })
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        cornerRadius = 18.dp,
+        colors = if (primary) ButtonDefaults.buttonColorsPrimary() else ButtonDefaults.buttonColors(),
+        content = content
+    )
 }
 
 private fun pasteUrl(clipboard: ClipboardManager): String? {

@@ -6,7 +6,7 @@ This folder contains the Android app for ShiftSaver.
 
 - Kotlin
 - Jetpack Compose
-- Compose UI components with a MIUIX-style skin
+- Miuix UI components for Xiaomi/HyperOS-style Compose design
 - DataStore Preferences
 - OkHttp
 
@@ -15,7 +15,7 @@ The app uses one MIUIX-style interface with two selectable themes:
 - `White`
 - `Dark`
 
-MIUIX itself is experimental, so this app currently uses a MIUIX-inspired Compose skin instead of depending directly on unstable MIUIX APIs.
+Miuix is experimental, so APIs may change between releases, but the app now depends on the real Android Miuix artifact, `top.yukonga.miuix.kmp:miuix-ui-android`, instead of a Material-style skin.
 
 ## Build
 
