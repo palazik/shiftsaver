@@ -59,7 +59,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.miuix.ui)
+    implementation(libs.miuix)
     implementation(libs.miuix.icons)
     debugImplementation(libs.androidx.ui.tooling)
 }
