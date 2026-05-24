@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.shiftsaver"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.shiftsaver"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.androidx.compose.animation)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.retrofit)
