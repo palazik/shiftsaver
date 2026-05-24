@@ -1,0 +1,6 @@
+-keep class com.shiftsaver.model.** { *; }
+-keep class com.shiftsaver.network.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**

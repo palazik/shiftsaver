@@ -1,178 +1,105 @@
 # ShiftSaver
 
-ShiftSaver is a LAN-based Android app plus Linux helper server for saving public media links through your own machine.
+Download videos from **YouTube, TikTok, and Instagram** without watermarks via a self-hosted Linux server and Android app.
 
-The repo is split like this:
+## Repository layout
 
-- `ShiftSaver/` - Android app source.
-- `linux/` - Linux installer, systemd service scripts, and Python server.
+```
+ShiftSaver/        ← Android app (Jetpack Compose, Kotlin)
+linux/             ← Linux server scripts
+  setup.sh         ← Install & autostart server
+  server.py        ← Flask + yt-dlp download API
+  update.sh        ← Update yt-dlp
+  uninstall.sh     ← Remove everything
+```
 
-## What Works Now
+---
 
-- Android app scaffold using Jetpack Compose.
-- MIUIX-style interface with White and Dark themes.
-- Saved server IP and port settings.
-- Server health check from the app.
-- Download job creation and status polling.
-- Linux server using FastAPI, Uvicorn, `yt-dlp`, and `ffmpeg`.
-- Installer for Debian/Ubuntu, Fedora, and Arch based distros.
-- User systemd auto-run service.
+## Android app
 
-## Important Limits
+- Choosable **Material Design 3** or **Miuix (HyperOS)** design — switchable live in Settings
+- Connect to your Linux server via IP + port
+- Download from YouTube / TikTok / Instagram (no watermark)
+- History screen for completed downloads
+- Share-sheet support: share a URL from any app → ShiftSaver
 
-This app is for public media you own or have permission to save.
+### Build
 
-It does not bypass DRM, private accounts, paywalls, login-only content, app-only restrictions, or platform access controls. YouTube, TikTok, and Instagram regularly change their sites, so downloads depend on the installed `yt-dlp` version continuing to support the URL you try.
+The GitHub Actions workflow (`.github/workflows/build.yml`) builds debug + unsigned release APKs automatically on push to `main` and sends them to Telegram.
 
-## Linux Server Setup
+---
 
-Clone the repo on a Linux machine connected to the same network as your Android phone:
+## Linux server
+
+### Requirements
+- Debian/Ubuntu, Fedora/RHEL, or Arch Linux
+- Python 3.10+
+- ffmpeg (auto-installed by setup.sh)
+
+### Quick start
 
 ```bash
-git clone <your-repo-url>
-cd ShiftSaver
-./linux/install.sh
+git clone https://github.com/YOUR_USER/ShiftSaver.git
+cd ShiftSaver/linux
+sudo bash setup.sh
 ```
 
-The installer:
+The script will:
+1. Install Python, pip, ffmpeg
+2. Create a virtualenv at `/opt/shiftsaver/venv`
+3. Install Flask + yt-dlp
+4. Install and start a `systemd` service
+5. Print the server IP and port to enter in the app
 
-- Installs system packages with `apt-get`, `dnf`, or `pacman`.
-- Creates a Python virtual environment at `~/.local/share/shiftsaver-server`.
-- Installs server Python dependencies.
-- Creates `~/ShiftSaverDownloads`.
-- Enables and starts `shiftsaver.service` as a user systemd service.
-- Prints the server IP and port.
+### Default port
 
-Default server URL:
+`5050` — open it in your firewall (setup.sh will tell you the exact command for your distro).
 
-```text
-http://YOUR_LINUX_IP:8787
+### API
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/status` | Health check |
+| POST | `/download` | Download a URL |
+| GET | `/list` | List downloaded files |
+| GET | `/files/<name>` | Serve a downloaded file |
+
+**POST /download body:**
+```json
+{ "url": "https://...", "quality": "best" }
 ```
+`quality`: `best` | `720p` | `480p` | `audio`
 
-If your phone cannot connect, allow TCP port `8787` in your firewall:
+---
+
+## Git branch guide
+
+### Create a new branch
 
 ```bash
-sudo ufw allow 8787/tcp
+# git
+git checkout -b my-feature
+git push -u origin my-feature
+
+# gh CLI
+gh repo clone YOUR_USER/ShiftSaver   # first time
+git checkout -b my-feature
+git push -u origin my-feature
 ```
 
-or on Fedora/firewalld:
+### Switch between branches
 
 ```bash
-sudo firewall-cmd --add-port=8787/tcp --permanent
-sudo firewall-cmd --reload
+git checkout main         # switch to main
+git checkout my-feature   # switch to feature branch
+git switch my-feature     # modern syntax (git 2.23+)
 ```
 
-## Linux Commands
+### Useful branch commands
 
 ```bash
-./linux/status.sh
-./linux/start.sh
-./linux/stop.sh
+git branch              # list local branches
+git branch -a           # list all (incl. remote)
+git branch -d my-feature           # delete local (safe)
+git push origin --delete my-feature  # delete remote
 ```
-
-Install with a custom port:
-
-```bash
-SHIFTSAVER_PORT=9000 ./linux/install.sh
-```
-
-Use a custom downloads folder:
-
-```bash
-SHIFTSAVER_DOWNLOAD_DIR="$HOME/Videos/ShiftSaver" ./linux/install.sh
-```
-
-## Android Build
-
-Open the `ShiftSaver/` folder in Android Studio.
-
-Requirements:
-
-- Android Studio with Android SDK.
-- JDK installed through Android Studio or locally.
-- Internet access for Gradle dependency download.
-
-Build and install the `app` module, then open ShiftSaver on the phone and enter:
-
-- IP address: the Linux IP printed by `./linux/install.sh`
-- Port: `8787` unless changed
-
-Tap `Test`, then paste a public TikTok, YouTube, or Instagram URL and tap `Start`.
-
-The app has four bottom tabs:
-
-- `Download` for submitting public media URLs.
-- `Servers` for server IP/port, connection test, and quick presets.
-- `Settings` for White/Dark theme selection.
-- `About` for app/version/server information and usage limits.
-
-## GitHub Actions APK Build
-
-The workflow is at `.github/workflows/build.yml`.
-
-It runs on:
-
-- Pushes to `main`.
-- Manual runs from the GitHub Actions tab.
-
-It builds:
-
-- Debug APK.
-- Unsigned release APK.
-
-The project is pinned to Android Gradle Plugin `9.2.1`, Kotlin `2.3.21`, compile SDK `36`, target SDK `35`, Gradle `9.4.1`, and Miuix `0.8.8` so it matches the available Android SDK and Miuix dependency metadata.
-
-Artifacts are uploaded as:
-
-- `ShiftSaver-debug`
-- `ShiftSaver-release-unsigned`
-
-Optional Telegram upload uses these repository secrets:
-
-- `TELEGRAM_BOT_TOKEN`
-- `TELEGRAM_CHAT_ID`
-- `TELEGRAM_TOPIC_ID`
-
-If the Telegram secrets are not set, the APK still builds and uploads to GitHub Actions artifacts.
-
-## Server API
-
-Health:
-
-```bash
-curl http://localhost:8787/health
-```
-
-Create a download:
-
-```bash
-curl -X POST http://localhost:8787/downloads \
-  -H 'Content-Type: application/json' \
-  -d '{"url":"https://www.youtube.com/watch?v=VIDEO_ID"}'
-```
-
-Check a job:
-
-```bash
-curl http://localhost:8787/downloads/JOB_ID
-```
-
-Downloaded files are served from:
-
-```text
-http://YOUR_LINUX_IP:8787/files/FILE_NAME
-```
-
-## Development Verification
-
-Current local verification:
-
-```bash
-python3 -m py_compile linux/server/shiftsaver_server.py
-bash -n linux/install.sh
-bash -n linux/start.sh
-bash -n linux/status.sh
-bash -n linux/stop.sh
-```
-
-Android build verification still needs Android Studio/JDK/Gradle. This environment did not have `java` or `gradle`, so the Android app has not been compiled here yet.
