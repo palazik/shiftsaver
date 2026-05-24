@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.shiftsaver.app"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.shiftsaver.app"

@@ -120,7 +120,7 @@ It builds:
 - Debug APK.
 - Unsigned release APK.
 
-The project is pinned to Android Gradle Plugin `9.2.1`, Kotlin `2.3.21`, compile SDK `35`, and Gradle `9.4.1` so it matches the workflow base and Miuix dependency metadata.
+The project is pinned to Android Gradle Plugin `9.2.1`, Kotlin `2.3.21`, compile SDK `37`, target SDK `35`, and Gradle `9.4.1` so it matches the workflow base and Miuix dependency metadata.
 
 Artifacts are uploaded as:
 
