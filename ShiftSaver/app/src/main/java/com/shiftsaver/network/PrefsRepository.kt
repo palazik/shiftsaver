@@ -22,7 +22,7 @@ class PrefsRepository(private val context: Context) {
 
         const val DEFAULT_HOST = "192.168.1.100"
         const val DEFAULT_PORT = 5050
-        const val DEFAULT_THEME = "md3"
+        const val DEFAULT_THEME = "miuix"
         const val DEFAULT_DARK = "system"
     }
 
