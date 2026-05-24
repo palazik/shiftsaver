@@ -269,7 +269,6 @@ private fun ShiftSaverScreen(settings: Settings, store: SettingsStore, api: Shif
         topBar = {
             SmallTopAppBar(
                 title = currentTab.label,
-                subtitle = baseUrl,
                 color = MiuixTheme.colorScheme.surface,
                 actions = {
                     StatusDot(busy = busy)
@@ -298,6 +297,14 @@ private fun ShiftSaverScreen(settings: Settings, store: SettingsStore, api: Shif
                 .padding(horizontal = 12.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Text(
+                text = baseUrl,
+                modifier = Modifier.padding(horizontal = 6.dp),
+                style = MiuixTheme.textStyles.footnote1,
+                color = MiuixTheme.colorScheme.onSurfaceVariantSummary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
             when (currentTab) {
                 AppTab.Download -> DownloadTab(
                     url = url,

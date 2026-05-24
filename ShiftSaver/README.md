@@ -15,7 +15,7 @@ The app uses one MIUIX-style interface with two selectable themes:
 - `White`
 - `Dark`
 
-Miuix is experimental, so APIs may change between releases, but the app now depends on the real Android Miuix artifact, `top.yukonga.miuix.kmp:miuix-ui-android`, instead of a Material-style skin.
+Miuix is experimental, so APIs may change between releases, but the app now depends on the real Android Miuix artifact, `top.yukonga.miuix.kmp:miuix-android`, instead of a Material-style skin.
 
 ## Build
 
