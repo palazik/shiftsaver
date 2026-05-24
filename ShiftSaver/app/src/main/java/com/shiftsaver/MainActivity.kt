@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
@@ -41,22 +43,41 @@ class MainActivity : ComponentActivity() {
             val vm: MainViewModel = viewModel()
             val state by vm.state.collectAsState()
 
-            // Handle shared URL from other apps
             LaunchedEffect(sharedUrl) {
                 if (!sharedUrl.isNullOrBlank()) {
                     vm.onUrlChange(sharedUrl)
                 }
             }
 
+            // Default to miuix as the stock design
             ShiftSaverTheme(themeChoice = state.theme, darkMode = state.darkMode) {
-                if (state.theme == "miuix") {
-                    ShiftSaverMiuixRoot(state = state, vm = vm)
-                } else {
+                if (state.theme == "md3") {
                     ShiftSaverMD3Root(state = state, vm = vm)
+                } else {
+                    ShiftSaverMiuixRoot(state = state, vm = vm)
                 }
             }
         }
     }
+}
+
+// ─── Slide animation helpers ──────────────────────────────────────────────────
+
+private val slideEnter: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+    slideInHorizontally(animationSpec = tween(300)) { it / 4 } +
+        fadeIn(animationSpec = tween(300))
+}
+private val slideExit: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+    slideOutHorizontally(animationSpec = tween(300)) { -it / 4 } +
+        fadeOut(animationSpec = tween(300))
+}
+private val slidePopEnter: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+    slideInHorizontally(animationSpec = tween(300)) { -it / 4 } +
+        fadeIn(animationSpec = tween(300))
+}
+private val slidePopExit: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+    slideOutHorizontally(animationSpec = tween(300)) { it / 4 } +
+        fadeOut(animationSpec = tween(300))
 }
 
 // ─── MD3 root ────────────────────────────────────────────────────────────────
@@ -102,7 +123,15 @@ private fun ShiftSaverMD3Root(
             }
         }
     ) { padding ->
-        NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(padding)) {
+        NavHost(
+            navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(padding),
+            enterTransition = slideEnter,
+            exitTransition = slideExit,
+            popEnterTransition = slidePopEnter,
+            popExitTransition = slidePopExit
+        ) {
             composable(Screen.Home.route) { HomeScreen(state, vm, isMiuix = false) }
             composable(Screen.History.route) { HistoryScreen(state, vm, isMiuix = false) }
             composable(Screen.Settings.route) { SettingsScreen(state, vm, isMiuix = false) }
@@ -154,7 +183,15 @@ private fun ShiftSaverMiuixRoot(
             }
         }
     ) { padding ->
-        NavHost(navController, startDestination = Screen.Home.route, Modifier.padding(padding)) {
+        NavHost(
+            navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(padding),
+            enterTransition = slideEnter,
+            exitTransition = slideExit,
+            popEnterTransition = slidePopEnter,
+            popExitTransition = slidePopExit
+        ) {
             composable(Screen.Home.route) { HomeScreen(state, vm, isMiuix = true) }
             composable(Screen.History.route) { HistoryScreen(state, vm, isMiuix = true) }
             composable(Screen.Settings.route) { SettingsScreen(state, vm, isMiuix = true) }
